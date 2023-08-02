@@ -1,11 +1,27 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, Alert, SafeAreaView } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useTheme } from '@react-navigation/native';
-import { ScrollView } from 'react-native';
+import LocationPermissionButton from '../redux/LocationPermissionButton';
+import { useSelector } from 'react-redux';
+import * as Location from 'expo-location';
+import { useNavigation } from '@react-navigation/native';
 
-const LandingPage = ({ navigation }) => {
+const LandingPage = () => {
   const { colors } = useTheme();
+  const [searchText, setSearchText] = useState('');
+  const [location, setLocation] = useState(null);
+  const hasLocationPermission = useSelector(state => state.locationPermission);
+  const navigation = useNavigation();
+
+  const checkLocationPermission = async () => {
+    const { status } = await Location.getForegroundPermissionsAsync();
+    setHasLocationPermission(status === 'granted');
+  };
+
+  const handleSearch = () => {
+    console.log('Search Text:', searchText);
+  };
 
   const categories = [
     { name: 'Groceries', icon: 'shopping-cart' },
@@ -78,34 +94,70 @@ const LandingPage = ({ navigation }) => {
     ));
   };
 
+  useEffect(() => {
+    checkLocationPermission();
+
+    // Get user's location in real-time
+    if (hasLocationPermission) {
+      const locationWatchId = Location.watchPositionAsync(
+        {
+          enableHighAccuracy: true,
+          distanceInterval: 100,
+        },
+        (position) => {
+          setLocation(position.coords);
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+        }
+      );
+
+      return () => {
+        locationWatchId.remove();
+      };
+    }
+  }, [hasLocationPermission]);
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.headerContainer}>
-        <TouchableOpacity onPress={() => console.log('Profile Icon Pressed')}>
-          <FontAwesome5 name="user-circle" size={30} color={colors.text} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Signin')}>
-          <Text style={[styles.signinText, { color: colors.text }]}>Signin</Text>
-        </TouchableOpacity>
+    <SafeAreaView contentContainerStyle={styles.container}>
+    <LocationPermissionButton />
+      <View style={styles.locationIconContainer}>
+        <FontAwesome5
+          name={hasLocationPermission ? 'location-on' : 'location-off'}
+          size={30}
+          color={hasLocationPermission ? 'red' : colors.text}
+        />
       </View>
-      <Text style={[styles.title, { color: colors.text }]}>Welcome to Let's Shop!</Text>
+
+      <View style={styles.headerContainer}>
+      <TouchableOpacity onPress={() => console.log('Profile Icon Pressed')}>
+        <FontAwesome5 name="user-circle" size={30} color={colors.text} />
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('SignupSignin')}>
+        <Text style={[styles.signinText, { color: colors.text }]}>Sign In</Text>
+      </TouchableOpacity>
+    </View>
+
       <View style={styles.searchContainer}>
         <TextInput
           style={[styles.searchInput, { borderColor: colors.text, color: colors.text }]}
           placeholder="Search"
           placeholderTextColor={colors.text}
+          value={searchText}
+          onChangeText={(text) => setSearchText(text)}
         />
-        <TouchableOpacity style={styles.searchButton}>
+        <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
           <FontAwesome5 name="search" size={20} color="white" />
         </TouchableOpacity>
       </View>
+
+      <Text style={[styles.title, { color: colors.text }]}>Welcome to Let's Shop!</Text>
       <View style={styles.categoryButtonsContainer}>
         {renderCategoryButtons()}
       </View>
-    </ScrollView>
+    </SafeAreaView>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -135,12 +187,13 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'flex-start',
     borderWidth: 1,
     borderRadius: 5,
-    borderColor: 'gray',
     marginTop: 20,
     marginBottom: 10,
     paddingHorizontal: 10,
+    width: '100%',
   },
   searchInput: {
     flex: 1,
@@ -169,6 +222,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 5,
     color: 'blue',
+  },
+  locationIconContainer: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
   },
 });
 

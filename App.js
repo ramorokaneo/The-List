@@ -1,5 +1,3 @@
-// App.js
-
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -21,37 +19,41 @@ import OfficeStationeryList from './src/components/Lists/OfficeStationeryList';
 import ElectronicsandTechList from './src/components/Lists/ElectronicsandTech';
 import HomeImprovementList from './src/components/Lists/HomeImprovement';
 import OutdoorandGardenList from './src/components/Lists/OutdoorandGardenList';
+import store from './src/redux/store';
+import { Provider } from 'react-redux';
 
 const Stack = createNativeStackNavigator();
 
 const App = () => {
   return (
     <ThemeProvider theme={theme}>
-      <NavigationContainer>
-        <ScrollView contentContainerStyle={styles.container}>
-          <Stack.Navigator initialRouteName="Home">
-            <Stack.Screen
-              name="Home"
-              component={HomePage}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen name="LandingPage" component={LandingPage} />
-            <Stack.Screen name="ShoppingList" component={ShoppingList} />
-            <Stack.Screen name="SignupSignin" component={SignupSignin} />
-            <Stack.Screen name="GroceryList" component={GroceryList} />
-            <Stack.Screen name="HouseholdSuppliesList" component={HouseholdSuppliesList} />
-            <Stack.Screen name="PersonalCareList" component={PersonalCareList} />
-            <Stack.Screen name="HealthMedicationsList" component={HealthMedicationsList} />
-            <Stack.Screen name="KitchenCookingList" component={KitchenCookingList} />
-            <Stack.Screen name="BabyandChildrenList" component={BabyandChildrenList} />
-            <Stack.Screen name="PetSuppliesList" component={PetSuppliesList} />
-            <Stack.Screen name="OfficeStationeryList" component={OfficeStationeryList} />
-            <Stack.Screen name="ElectronicsandTechList" component={ElectronicsandTechList} />
-            <Stack.Screen name="HomeImprovementList" component={HomeImprovementList} />
-            <Stack.Screen name="OutdoorandGardenList" component={OutdoorandGardenList} />
-          </Stack.Navigator>
-        </ScrollView>
-      </NavigationContainer>
+      <Provider store={store}>
+        <NavigationContainer>
+          <ScrollView contentContainerStyle={styles.container}>
+            <Stack.Navigator initialRouteName="Home">
+              <Stack.Screen
+                name="Home"
+                component={HomePage}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen name="LandingPage" component={LandingPage} />
+              <Stack.Screen name="ShoppingList" component={ShoppingList} />
+              <Stack.Screen name="SignupSignin" component={SignupSignin} />
+              <Stack.Screen name="GroceryList" component={GroceryList} />
+              <Stack.Screen name="HouseholdSuppliesList" component={HouseholdSuppliesList} />
+              <Stack.Screen name="PersonalCareList" component={PersonalCareList} />
+              <Stack.Screen name="HealthMedicationsList" component={HealthMedicationsList} />
+              <Stack.Screen name="KitchenCookingList" component={KitchenCookingList} />
+              <Stack.Screen name="BabyandChildrenList" component={BabyandChildrenList} />
+              <Stack.Screen name="PetSuppliesList" component={PetSuppliesList} />
+              <Stack.Screen name="OfficeStationeryList" component={OfficeStationeryList} />
+              <Stack.Screen name="ElectronicsandTechList" component={ElectronicsandTechList} />
+              <Stack.Screen name="HomeImprovementList" component={HomeImprovementList} />
+              <Stack.Screen name="OutdoorandGardenList" component={OutdoorandGardenList} />
+            </Stack.Navigator>
+          </ScrollView>
+        </NavigationContainer>
+      </Provider>
     </ThemeProvider>
   );
 };
