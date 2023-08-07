@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 
 const MyListScreen = ({ route }) => {
   const listRef = firebase.firestore().collection('lists');
-  const [textHeading, onChangeHeadingText] = useState(route.params.item.heading); // Corrected to 'heading'
+  const [textHeading, onChangeHeadingText] = useState(route.params.item.heading);
   const navigation = useNavigation();
 
   const updateList = () => {
@@ -32,8 +32,8 @@ const MyListScreen = ({ route }) => {
         value={textHeading}
         placeholder='Update List'
       />
-      <Pressable style={styles.buttonUpdate} onPress={updateList}> {/* Removed unnecessary arrow function */}
-        <Text>Update</Text>
+      <Pressable style={styles.buttonUpdate} onPress={updateList}>
+        <Text>Update</Text> 
       </Pressable>
     </View>
   );
