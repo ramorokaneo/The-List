@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import Axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
+import { firebase } from '../../src/firebase/config';
 
 const SignupScreen = () => {
   const navigation = useNavigation();
@@ -12,31 +12,35 @@ const SignupScreen = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleRegisterPress = () => {
-    const userData = {
-      name,
-      username,
-      email,
-      phoneNumber,
-      password,
-    };
+  const handleRegisterPress = async () => {
+    try {
+      // Register the user with email and password
+      const response = await firebase.auth().createUserWithEmailAndPassword(email, password);
+      const user = response.user;
 
-    Axios.post('http://YOUR_BACKEND_API_URL/api/users/register', userData)
-      .then((response) => {
-        Alert.alert('Registered Successfully', 'Click OK to go to Login', [
-          { text: 'OK', onPress: () => navigateToLogin() },
-        ]);
-      })
-      .catch((error) => {
-        Alert.alert('Registration Failed', 'An error occurred during registration. Please try again.');
+      // Send email verification to the user
+      await user.sendEmailVerification();
+
+      // Store additional user data in Firestore (you can customize this as needed)
+      await firebase.firestore().collection('users').doc(user.uid).set({
+        name,
+        username,
+        phoneNumber,
       });
+
+      Alert.alert(
+        'Registered Successfully',
+        'Please verify your email by clicking the verification link sent to your email address.',
+        [{ text: 'OK', onPress: () => navigateToLogin() }]
+      );
+    } catch (error) {
+      Alert.alert('Registration Failed', error.message);
+    }
   };
 
   const navigateToLogin = () => {
     navigation.navigate('Login');
   };
-
-  
 
   return (
     <View style={styles.container}>

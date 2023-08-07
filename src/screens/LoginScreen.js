@@ -1,36 +1,25 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import Axios from 'axios';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { loginUser } from '../../redux/actions/authActions';
+import { firebase } from '../firebase/config';
 
 const LoginScreen = ({ navigation }) => {
   const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [password, setPassword] = useState('');
-
   const dispatch = useDispatch();
 
-  const handleLogin = () => {
-    const userData = {
-      usernameOrEmail,
-      password,
-    };
-
-    Axios.post('http://YOUR_BACKEND_API_URL/api/users/login', userData)
-      .then((response) => {
-        // Assuming the backend returns a token upon successful login
-        const token = response.data.token;
-        // Store the token in your app's state or AsyncStorage for future authenticated requests
-        // ...
-
-        // Show a success message upon successful login
-        Alert.alert('Logged In Successfully', 'Welcome to our app!');
-        // Here, you can navigate to the home screen or perform other actions after successful login
-        navigation.navigate('Home');
-      })
-      .catch((error) => {
-        Alert.alert('Login Failed', 'Invalid credentials. Please try again.');
-      });
+  const handleLogin = async () => {
+    try {
+      const response = await firebase.auth().signInWithEmailAndPassword(usernameOrEmail, password);
+      const user = response.user;
+      // You can store the user details in Redux or AsyncStorage for future use
+      dispatch(loginUser(user));
+      Alert.alert('Logged In Successfully', 'Welcome to our app!');
+      navigation.navigate('Home');
+    } catch (error) {
+      Alert.alert('Login Failed', 'Invalid credentials. Please try again.');
+    }
   };
 
   const handleTermsAndConditionsPress = () => {
