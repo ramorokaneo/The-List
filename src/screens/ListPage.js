@@ -1,145 +1,156 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, Alert } from 'react-native';
-import Axios from 'axios';
-import ListHeader from '../Pages/ListHeader';
-import ListFooter from '../Pages/ListFooter';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, Alert, Keyboard, Pressable } from 'react-native';
+import { firebase } from '../../src/firebase/config';
+import { useNavigation } from '@react-navigation/native';
+import { FontAwesome } from '@expo/vector-icons';
 
 const ListPage = () => {
-  const [isCreatingList, setIsCreatingList] = useState(false);
-  const [listTitle, setListTitle] = useState('');
-  const [listItems, setListItems] = useState([]);
-
-  const handleCreateNewList = () => {
-    setIsCreatingList(true);
-  };
-
-  const handleSaveList = () => {
-    if (listTitle.trim().length > 0) {
-      const newList = {
-        title: listTitle,
-        items: [],
-        user: 'USER_UNIQUE_IDENTIFIER', // Replace this with the logged-in user's unique identifier
-      };
-
-      Axios.post('http://YOUR_BACKEND_API_URL/api/lists/create-list', newList)
-        .then((response) => {
-          Alert.alert('List Created Successfully', 'Your new list has been created.');
-          setIsCreatingList(false);
-          setListTitle('');
-        })
-        .catch((error) => {
-          Alert.alert('List Creation Failed', 'An error occurred while creating the list.');
-        });
-    }
-  };
+  const [lists, setLists] = useState([]);
+  const listRef = firebase.firestore().collection('lists');
+  const [addData, setAddData] = useState('');
+  const navigation = useNavigation();
 
   useEffect(() => {
-    // Fetch user-specific lists from the backend upon component mount
-    Axios.get(`http://YOUR_BACKEND_API_URL/api/lists/user-lists/USER_UNIQUE_IDENTIFIER`)
-      .then((response) => {
-        setListItems(response.data);
+    listRef
+      .orderBy('createdAt', 'desc')
+      .onSnapshot(
+        querySnapshot => {
+          const lists = []
+          querySnapshot.forEach((doc) => {
+            const { heading } = doc.data()
+            lists.push({
+              id: doc.id,
+              heading,
+            })
+          })
+          setLists(lists)
+        }
+      )
+  }, [])
+
+  const deleteList = (listId) => {
+    listRef
+      .doc(listId)
+      .delete()
+      .then(() => {
+        alert("Deleted Successfully");
       })
-      .catch((error) => {
-        console.error('Error fetching user lists:', error);
-      });
-  }, []);
+      .catch(error => {
+        alert(error);
+      })
+  }
+
+  const addList = () => {
+    if (addData && addData.length > 0) {
+      const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+      const data = {
+        heading: addData,
+        createdAt: timestamp
+      };
+      listRef
+        .add(data)
+        .then(() => {
+          setAddData('');
+          Keyboard.dismiss();
+        })
+        .catch((error) => {
+          alert(error);
+        })
+    }
+  }
 
   return (
-    <View style={styles.container}>
-      <ListHeader />
-      <View style={styles.content}>
-        <Text style={styles.text}>List Page</Text>
-        {isCreatingList ? (
-          <View style={styles.createListContainer}>
-            <TextInput
-              style={styles.listTitleInput}
-              placeholder="Enter list title"
-              value={listTitle}
-              onChangeText={setListTitle}
-            />
-            <TouchableOpacity style={styles.saveButton} onPress={handleSaveList}>
-              <Text style={styles.saveButtonText}>Save List</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <View style={styles.dashboard}>
-            <Text style={styles.dashboardItem} onPress={handleCreateNewList}>
-              Create New List
-            </Text>
-            <Text style={styles.dashboardItem}>My List</Text>
-            <Text style={styles.dashboardItem}>Help</Text>
+    <View style={{ flex: 1 }}>
+      <View style={styles.formcontainer}>
+        <TextInput
+          style={styles.input}
+          placeholder='Add a New List'
+          placeholderTextColor='#aaaaaa'
+          onChangeText={(heading) => setAddData(heading)}
+          value={addData}
+          underlineColorAndroid='transparent'
+          autoCapitalize='none'
+        />
+        <TouchableOpacity style={styles.button} onPress={addList}>
+          <Text style={styles.buttonText}>Add</Text>
+        </TouchableOpacity>
+      </View>
+      <FlatList
+        data={lists}
+        numColumns={1}
+        renderItem={({ item }) => (
+          <View>
+            <Pressable
+              style={styles.container}
+              onPress={() => navigation.navigate('MyList', { item })}
+            >
+              <FontAwesome
+                name='trash-o'
+                color='red'
+                onPress={() => deleteList(item.id)} 
+                style={styles.listIcon}
+              />
+              <View style={styles.innerContainer}>
+                <Text style={styles.itemHeading}>
+                  {item.heading[0].toUpperCase() + item.heading.slice(1)}
+                </Text>
+              </View>
+            </Pressable>
           </View>
         )}
-        <FlatList
-          data={listItems}
-          renderItem={({ item }) => (
-            <View style={styles.listItem}>
-              <Text style={styles.listItemTitle}>{item.title}</Text>
-              {/* Add the list items here */}
-            </View>
-          )}
-          keyExtractor={(item, index) => index.toString()}
-        />
-      </View>
-      <ListFooter />
+      />
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f0f0f0',
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  text: {
-    fontSize: 24,
-    color: '#333',
-  },
-  dashboard: {
+  formcontainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 20,
-  },
-  dashboardItem: {
-    fontSize: 18,
-    color: 'blue',
-    textDecorationLine: 'underline',
-    marginHorizontal: 10,
-  },
-  createListContainer: {
-    alignItems: 'center',
-  },
-  listTitleInput: {
-    fontSize: 20,
-    marginBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-  },
-  saveButton: {
-    backgroundColor: 'gray',
-    paddingHorizontal: 16,
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
     paddingVertical: 10,
-    borderRadius: 5,
-    marginTop: 20,
+    backgroundColor: 'white',
+    elevation: 10,
   },
-  saveButtonText: {
-    color: '#fff',
+  input: {
+    flex: 1,
+    height: 40,
+    backgroundColor: '#f2f2f2',
+    borderRadius: 8,
+    paddingHorizontal: 16,
     fontSize: 16,
   },
-  listItem: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+  button: {
+    marginLeft: 10,
+    paddingHorizontal: 16,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'blue',
+    borderRadius: 8,
   },
-  listItemTitle: {
-    fontSize: 20,
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
     fontWeight: 'bold',
+  },
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#cccccc',
+  },
+  innerContainer: {
+    flex: 1,
+  },
+  itemHeading: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  listIcon: {
+    marginRight: 16,
   },
 });
 

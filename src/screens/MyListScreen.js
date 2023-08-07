@@ -1,22 +1,40 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { firebase } from '../../src/firebase/config';
+import { useNavigation } from '@react-navigation/native';
 
-const MyListScreen = () => {
-  // Simulated user's previous saved lists
-  const previousLists = [
-    { id: '1', title: 'List 1' },
-    { id: '2', title: 'List 2' },
-    { id: '3', title: 'List 3' },
-    // Add more lists as needed
-  ];
+const MyListScreen = ({ route }) => {
+  const listRef = firebase.firestore().collection('lists');
+  const [textHeading, onChangeHeadingText] = useState(route.params.item.name);
+  const navigation = useNavigation();
+
+  const updateList = () => {
+    if (textHeading && textHeading.length > 0) {
+      listRef
+        .doc(route.params.item.id)
+        .update({
+          heading: textHeading,
+        })
+        .then(() => {
+          navigation.navigate('List');
+        })
+        .catch((error) => {
+          alert(error);
+        });
+    }
+  };
 
   return (
     <View style={styles.container}>
-      {previousLists.map((list) => (
-        <View key={list.id} style={styles.listItem}>
-          <Text style={styles.listTitle}>{list.title}</Text>
-        </View>
-      ))}
+      <TextInput
+        style={styles.textField}
+        onChangeText={onChangeHeadingText}
+        value={textHeading}
+        placeholder='Update List'
+      />
+      <Pressable style={styles.buttonUpdate} onPress={() => updateList()}>
+        <Text>Update</Text>
+      </Pressable>
     </View>
   );
 };
@@ -24,20 +42,24 @@ const MyListScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: '#f0f0f0',
-    padding: 20,
   },
-  listItem: {
-    backgroundColor: '#fff',
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 5,
+  textField: {
+    width: '80%',
+    height: 40,
     borderWidth: 1,
     borderColor: '#ccc',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
   },
-  listTitle: {
-    fontSize: 18,
-    color: '#333',
+  buttonUpdate: {
+    backgroundColor: 'green',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
   },
 });
 

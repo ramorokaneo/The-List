@@ -36,6 +36,8 @@ const SignupScreen = () => {
     navigation.navigate('Login');
   };
 
+  
+
   return (
     <View style={styles.container}>
       <TextInput

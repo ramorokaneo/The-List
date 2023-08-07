@@ -37,6 +37,10 @@ const LoginScreen = ({ navigation }) => {
     navigation.navigate('TermsAndConditions');
   };
 
+  const handleSignupPress = () => {
+    navigation.navigate('Signup');
+  };
+
   return (
     <View style={styles.container}>
       <TextInput
@@ -59,6 +63,11 @@ const LoginScreen = ({ navigation }) => {
         <Text style={styles.termsText}>
           By logging in, you agree to our{' '}
           <Text style={styles.linkText}>Terms & Conditions</Text>
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={handleSignupPress}>
+        <Text style={styles.signupText}>
+          Don't have an account? <Text style={styles.signupLinkText}>Signup</Text>
         </Text>
       </TouchableOpacity>
     </View>
