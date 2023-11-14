@@ -1,89 +1,56 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { firebase } from '../../src/firebase/config';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 
-const SignupScreen = () => {
-  const navigation = useNavigation();
+const SignUpScreen = ({ navigation }) => {
+  const [selectedImage, setSelectedImage] = useState(null);
 
-  const [name, setName] = useState('');
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [password, setPassword] = useState('');
-
-  const handleRegisterPress = async () => {
-    try {
-      // Register the user with email and password
-      const response = await firebase.auth().createUserWithEmailAndPassword(email, password);
-      const user = response.user;
-
-      // Send email verification to the user
-      await user.sendEmailVerification();
-
-      // Store additional user data in Firestore (you can customize this as needed)
-      await firebase.firestore().collection('users').doc(user.uid).set({
-        name,
-        username,
-        phoneNumber,
-      });
-
-      Alert.alert(
-        'Registered Successfully',
-        'Please verify your email by clicking the verification link sent to your email address.',
-        [{ text: 'OK', onPress: () => navigateToLogin() }]
-      );
-    } catch (error) {
-      Alert.alert('Registration Failed', error.message);
-    }
-  };
-
-  const navigateToLogin = () => {
-    navigation.navigate('Login');
+  // Function to handle the signup process
+  const handleSignUp = () => {
+    // Perform signup logic here
+    // After a successful signup, navigate to the SignIn screen
+    // You can add your signup logic here and replace the following line accordingly
+    navigation.navigate('SignInScreen'); // Replace 'SignInScreen' with the actual screen name
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Sign Up</Text>
       <TextInput
         style={styles.input}
         placeholder="Name"
-        value={name}
-        onChangeText={setName}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Username"
-        value={username}
-        onChangeText={setUsername}
+        autoCapitalize="words"
       />
       <TextInput
         style={styles.input}
         placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Phone Number"
-        value={phoneNumber}
-        onChangeText={setPhoneNumber}
+        keyboardType="email-address"
+        autoCapitalize="none"
       />
       <TextInput
         style={styles.input}
         placeholder="Password"
         secureTextEntry
-        value={password}
-        onChangeText={setPassword}
       />
       <TextInput
         style={styles.input}
         placeholder="Confirm Password"
         secureTextEntry
       />
-      <TouchableOpacity style={styles.registerButton} onPress={handleRegisterPress}>
-        <Text style={styles.registerButtonText}>Register</Text>
+      {selectedImage && (
+        <View style={styles.uploadContainer}>
+          {/* Display the selected image if needed */}
+        </View>
+      )}
+      <View style={styles.checkboxContainer}>
+        <Text style={styles.termsText}>I agree to the Terms & Conditions</Text>
+      </View>
+      <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
+        <Text style={styles.signUpButtonText}>Sign Up</Text>
       </TouchableOpacity>
-    </View>
+      <TouchableOpacity onPress={() => navigation.navigate('SignInScreen')}>
+        <Text style={styles.signInText}>Already have an account? Sign In</Text>
+      </TouchableOpacity>
+    </ScrollView>
   );
 };
 
@@ -91,28 +58,59 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f0f0f0',
+    paddingHorizontal: 20,
+    backgroundColor: '#ecf0f1', // Light background color
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    color: '#3498db', // Title color
   },
   input: {
-    width: '80%',
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    marginBottom: 10,
+    height: 50,
+    borderColor: '#3498db',
+    borderWidth: 2,
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    marginBottom: 20,
+    fontSize: 16,
   },
-  registerButton: {
-    backgroundColor: 'green',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 5,
+  uploadContainer: {
+    height: 150,
+    backgroundColor: '#3498db',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+    overflow: 'hidden', // Clip the content inside the view
   },
-  registerButtonText: {
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  termsText: {
+    fontSize: 16,
+    marginLeft: 10,
+  },
+  signUpButton: {
+    backgroundColor: '#3498db',
+    paddingVertical: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  signUpButtonText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
   },
+  signInText: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: '#3498db',
+  },
 });
 
-export default SignupScreen;
+export default SignUpScreen;
