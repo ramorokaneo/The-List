@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import { setUser } from '../path-to-your/userSlice';
+import { setUser } from '../Slices/userSlice';
 
 const SignUpScreen = ({ navigation }) => {
   const [selectedImage, setSelectedImage] = useState(null);

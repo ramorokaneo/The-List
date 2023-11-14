@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, ScrollVi
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useDispatch } from 'react-redux';
-import { addItem, removeItem, clearList } from '../path-to-your/listSlice';
+import { addItem, removeItem, clearList } from '../Slices/listSlice';
 
 const CreateNewListScreen = () => {
   const navigation = useNavigation();
