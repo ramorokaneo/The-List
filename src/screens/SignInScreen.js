@@ -1,12 +1,18 @@
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import { setUser } from '../Slices/userSlice';
 
 const SignInScreen = () => {
+  const dispatch = useDispatch();
   const navigation = useNavigation();
 
   const handleSignIn = () => {
     // Perform sign-in logic here
+
+    // Dispatch the user information to Redux
+    dispatch(setUser({ email: 'user@example.com' }));
 
     // Navigate to Home screen after successful sign-in
     navigation.navigate('HomeScreen');

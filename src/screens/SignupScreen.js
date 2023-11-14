@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { useDispatch } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
+import { setUser } from '../path-to-your/userSlice';
 
 const SignUpScreen = ({ navigation }) => {
   const [selectedImage, setSelectedImage] = useState(null);
+  const dispatch = useDispatch();
 
-  // Function to handle the signup process
   const handleSignUp = () => {
     // Perform signup logic here
-    // After a successful signup, navigate to the SignIn screen
-    // You can add your signup logic here and replace the following line accordingly
-    navigation.navigate('SignInScreen'); // Replace 'SignInScreen' with the actual screen name
+
+    // Dispatch the user information to Redux
+    dispatch(setUser({ email: 'user@example.com' }));
+
+    // Navigate to SignIn screen after successful signup
+    navigation.navigate('SignInScreen');
   };
 
   return (
