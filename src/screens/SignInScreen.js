@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import { setUser } from '../Slices/userSlice';
+import { setUser } from '../Slices/authSlice';
 
 const SignInScreen = () => {
   const dispatch = useDispatch();

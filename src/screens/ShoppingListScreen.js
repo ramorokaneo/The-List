@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, ScrollVi
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useDispatch } from 'react-redux';
-import { addItem, removeItem, clearList } from '../Slices/listSlice';
+import { addItem, removeItem, clearList, saveList } from '../Slices/listSlice';
 
 const CreateNewListScreen = () => {
   const navigation = useNavigation();
@@ -23,12 +23,12 @@ const CreateNewListScreen = () => {
     dispatch(removeItem(itemId));
   };
 
-  const saveList = () => {
-    // Implement logic to save the list (e.g., send to server, store locally, etc.)
-    // ...
+  const saveListToRedux = () => {
+    // Dispatch the saveList action
+    dispatch(saveList());
 
-    // After saving, navigate to the ShoppingListScreen or any other screen
-    // navigation.navigate('ShoppingListScreen');
+    // After saving, navigate to the History screen or any other screen
+    // navigation.navigate('HistoryScreen');
   };
 
   const goBack = () => {
@@ -63,7 +63,7 @@ const CreateNewListScreen = () => {
           value={item}
           onChangeText={setItem}
         />
-        <TouchableOpacity style={styles.addButton} onPress={addItem}>
+        <TouchableOpacity style={styles.addButton} onPress={addItemToRedux}>
           <Text style={styles.buttonText}>Add</Text>
         </TouchableOpacity>
       </View>
@@ -75,7 +75,7 @@ const CreateNewListScreen = () => {
         renderItem={({ item }) => (
           <View style={styles.item}>
             <Text style={styles.itemText}>{item.name}</Text>
-            <TouchableOpacity onPress={() => removeItem(item.id)}>
+            <TouchableOpacity onPress={() => removeItemFromRedux(item.id)}>
               <Text style={styles.removeButtonText}>Remove</Text>
             </TouchableOpacity>
           </View>
@@ -83,7 +83,7 @@ const CreateNewListScreen = () => {
       />
 
       {/* Save button */}
-      <TouchableOpacity style={styles.saveButton} onPress={saveList}>
+      <TouchableOpacity style={styles.saveButton} onPress={saveListToRedux}>
         <Text style={styles.buttonText}>Save List</Text>
       </TouchableOpacity>
 
@@ -103,7 +103,7 @@ const CreateNewListScreen = () => {
       </View>
     </ScrollView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

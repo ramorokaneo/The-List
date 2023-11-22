@@ -22,7 +22,7 @@ const HomeScreen = () => {
   };
 
   const viewListHistory = () => {
-    navigation.navigate('ListHistory');
+    navigation.navigate('HistoryScreen');
   };
 
   return (
@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   logoutButton: {
-    backgroundColor: '#e74c3c', // Red color for logout button
+    backgroundColor: '#e74c3c', 
   },
 });
 
